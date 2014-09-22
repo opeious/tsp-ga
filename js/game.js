@@ -1,6 +1,6 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser', { preload: preload, create: create, update: update, render: render  });
 var cities;
-var cityScale = 0.5;
+var cityScale = 0.25;
 
 function preload() {
 
@@ -10,16 +10,22 @@ function preload() {
 function create() {
     cities = game.add.group();
    
+    /*
     this.game.time.advancedTiming = true;
     this.fpsText = this.game.add.text(10, 10, '',       //fps tracking
     { font: '8px Arial', fill: '#ffffff' });
+    */
 }
 
 function update()
 {
+    
+    /*
     if (this.game.time.fps !== 0) {
         this.fpsText.setText(this.game.time.fps + ' FPS');   //update fps tracker
     }
+    */
+    
     if(cities.countLiving()<slider1Val)
     {
         addCity(game.world.randomX,game.world.randomY);
@@ -38,7 +44,7 @@ function render()
 {
 }
 
-var addCity = funciton(x,y)
+var addCity = function(x,y)
 {
     var city = cities.getFirstDead();
     
@@ -52,6 +58,7 @@ var addCity = funciton(x,y)
     
     city.x = x;
     city.y = y;
+    city.body.collideWorldBounds = true;
     
     return city;
 }
