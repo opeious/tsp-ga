@@ -1,6 +1,7 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser', { preload: preload, create: create, update: update, render: render  });
 var cities;
 var cityScale = 0.25;
+var paths;
 
 function preload() {
 
@@ -9,6 +10,7 @@ function preload() {
 
 function create() {
     cities = game.add.group();
+    paths = game.add.group();
    
     /*
     this.game.time.advancedTiming = true;
@@ -58,7 +60,7 @@ var addCity = function(x,y)
     
     city.x = x;
     city.y = y;
-    city.body.collideWorldBounds = true;
+    //city.body.collideWorldBounds = true;     don't need border collisions
     
     return city;
 }
@@ -68,7 +70,7 @@ var City = function(game, x,y)
     Phaser.Sprite.call(this,game,x,y,'city');
     this.anchor.setTo(0.5,0.5);
     
-    this.game.physics.enable(this,Phaser.Physics.ARCADE);
+    //this.game.physics.enable(this,Phaser.Physics.ARCADE);    don't need physics bodies
 }
 
 City.prototype = Object.create(Phaser.Sprite.prototype);
@@ -77,4 +79,10 @@ City.prototype.constructor = City;
 City.prototype.update = function() {
     if(!this.alive)
         return;
+}
+
+
+var rePop = function()
+{
+    console.log("re popping");
 }
