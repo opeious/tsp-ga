@@ -1,7 +1,8 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser', { preload: preload, create: create, update: update, render: render  });
 var cities;
 var cityScale = 0.25;
-var paths;
+var population;
+var path;
 
 function preload() {
 
@@ -11,7 +12,8 @@ function preload() {
 function create() {
     cities = game.add.group();
     paths = game.add.group();
-   
+    //population = game.add.group();
+    //path = game.add.group();  
     /*
     this.game.time.advancedTiming = true;
     this.fpsText = this.game.add.text(10, 10, '',       //fps tracking
@@ -81,8 +83,17 @@ City.prototype.update = function() {
         return;
 }
 
-
 var rePop = function()
 {
-    console.log("re popping");
+    population = new Array(slider2Val-1);
+    for(var i=0;i<=slider2Val;i++)
+    {
+        var tempPath = new Array(slider1Val-1);
+        for(var l=1;l <= slider1Val-1; l++)
+         tempPath[l-1]=l;
+
+        tempPath=shuffle(tempPath);
+    
+      population[i]=tempPath; 
+    }
 }
