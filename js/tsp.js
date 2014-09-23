@@ -137,6 +137,8 @@ var drawPath = function(path)
      game.debug.geom(line);    
     }
     
+    line.fromSprite(cities.getAt(path[i]),cities.getAt(0));
+    game.debug.geom(line);
 }
 
 
