@@ -3,6 +3,7 @@ var cities;
 var cityScale = 0.25;
 var population;
 var path;
+var pathDrawingDelay = 0.1;
 
 function preload() {
 
@@ -12,6 +13,7 @@ function preload() {
 function create() {
     cities = game.add.group();
     paths = game.add.group();
+    small = game.add.group();
 
     /*
     this.game.time.advancedTiming = true;
@@ -45,6 +47,7 @@ function update()
 
 function render()
 {
+
 }
 
 var addCity = function(x,y)
@@ -93,19 +96,49 @@ var rePop = function()
       population[z]=tempPath; 
       
         
-        
+     /*   
       var testString = '0 ';
       for(var i=0;i<=slider1Val-2;i++)
       {
-          testString += tempPath[i];                //  block for testing paths
+          testString += tempPath[i];                //  block for testing paths (log)
           testString += ' ';
       }
-        
       var test=fitness(tempPath);
-      console.log(testString,'0 : ',fitness(tempPath));
-      
+      console.log(testString,'0 : ',fitness(tempPath));  
+     */
+    
     }
+    
+    
+    var smallestPath=0;
+    for(z=1;z<slider2Val;z++)
+    {
+          if(fitness(population[z])<fitness(population[smallestPath]))
+              smallestPath=z;
+    }
+    drawPath(population[smallestPath]);
 }
+
+var drawPath = function(path)
+{
+    var tempCity;
+    tempCity = cities.getAt(0);
+    tempCity.scale.x = 1;
+    tempCity.scale.y = 1;
+    tempCity.tint = 0xee2d2e;
+    var line = new Phaser.Line;
+    
+    line.fromSprite(cities.getAt(0),cities.getAt(path[0]));
+    game.debug.geom(line);    
+    for(var i=0;i<=slider1Val-3;i++)
+    {
+     
+     line.fromSprite(cities.getAt(path[i]),cities.getAt(path[i+1]));
+     game.debug.geom(line);    
+    }
+    
+}
+
 
 var fitness = function(tempPath)
 {
@@ -122,6 +155,10 @@ var fitness = function(tempPath)
     
     ret += distance(cities.getAt(0),cities.getAt(tempPath[1]));
     ret += distance(cities.getAt(0),cities.getAt(tempPath[slider1Val-2]));
+    
+    //var lin1 = new Phaser.Line;
+    //lin1.fromSprite(cities.getAt(0),cities.getAt(tempPath[1]));
+    //game.debug.geom(lin1);
     return ret;
 }
 
