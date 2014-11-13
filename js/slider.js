@@ -20,7 +20,7 @@ $('#slider-input').change( function() {
     
     slider1Val = val;
 });
-
+ 
 
 $('#slider-input2').change( function() {
     var val = $(this).val();

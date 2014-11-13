@@ -4,6 +4,13 @@ var cityScale = 0.25;
 var population;
 var path;
 var pathDrawingDelay = 0.1;
+var populated=0;
+
+
+
+var noOfIterations = 100;  //number of generations per iteration
+var mutationChance  = 50; //in %
+
 
 function preload() {
 
@@ -20,6 +27,22 @@ function create() {
     this.fpsText = this.game.add.text(10, 10, '',       //fps tracking
     { font: '8px Arial', fill: '#ffffff' });
     */
+    while(cities.countLiving()<slider1Val)
+    {
+        addCity(game.world.randomX,game.world.randomY);
+        cities.setAll('scale.x',cityScale);
+        cities.setAll('scale.y',cityScale);
+        
+    }
+    while(cities.countLiving()>slider1Val)
+    {
+        var killCity = cities.getFirstAlive();
+        if(killCity)
+         killCity.kill();
+        
+    }
+    population = new Array(slider2Val-1);
+    rePop();
 }
 
 function update()
@@ -43,6 +66,11 @@ function update()
         if(killCity)
          killCity.kill();
     }
+    
+    
+    drawSmallestPath();
+    
+    
 }
 
 function render()
@@ -82,9 +110,99 @@ City.prototype.update = function() {
         return;
 }
 
+var nextGen = function()
+{
+    for(var a=0;a<noOfIterations; a++)    
+    {
+        
+      var parent1 = population[returnSmallestPath()];
+      var parent2 = population[returnSecondSmallestPath()];
+      var replacement1 = population[returnLongestPath()];
+      var replacement2 = population[returnSecondLongestPath()];
+      
+      var child1 = parent1.slice();
+      var child2 = parent2.slice();
+      
+      //do child generation
+      //crossover
+      //mutation
+       
+        
+ 
+     
+     //crossover(child1,child2);
+      mutation(child1);
+      mutation(child2);
+     
+        
+    if(fitness(population[returnLongestPath()])>fitness(child1.slice()))         
+     population[returnLongestPath()] = child1.slice();
+   if(fitness(population[returnSecondLongestPath()])>fitness(child2.slice()))                 
+     population[returnSecondLongestPath()] = child2.slice();
+     
+     //replacement2 = child2;
+    }
+    
+    console.log('Current smallest path: ');
+    logPath(population[returnSmallestPath()]);
+    
+    
+    
+    
+}
+
+var crossover = function(path1,path2)
+{
+    var path1First = new Array(path1.length()+1);
+    var path1Second = new Array(path1.length()+1);
+    path1First[0]=0;
+    path1Second[path1Second.length()]=0;
+    for(var i=1;i<path1.length();i++)
+        path1First[i]=path1[i-1];
+    
+    for(i=0;i<path1.length()-1;i++)
+        path1Second[i]=path1[i+1];
+}
+
+
+var logPath = function(path)
+{
+      var testString = '0 ';
+      for(var i=0;i<=slider1Val-2;i++)
+      {
+          testString += path[i];                //  block for testing paths (log)
+          testString += ' ';
+      }
+      var test=fitness(path);
+      console.log(testString,'0 : ',fitness(path),'\n');
+    
+    
+    testString += '0 : ';
+    testString += fitness(path);
+    testString += '\n';
+    
+    document.getElementById('logger').innerHTML = testString;
+}
+
+
+var mutation = function(path)
+{
+    var mutateP = Math.floor(Math.random()*100);
+    if(mutateP>mutationChance)                              //do nothing - mutation chance
+        return;
+    
+    var i = Math.floor(Math.random()*(slider1Val-1));
+    var j = Math.floor(Math.random()*(slider1Val-1));    
+    var t = path[i];
+    path[i] = path[j];
+    path[j] = t;
+};
+
+
 var rePop = function()
 {
-    population = new Array(slider2Val-1);
+    
+    
     for(var z=0;z<slider2Val;z++)
     {
         var tempPath = new Array(slider1Val-1);
@@ -94,29 +212,75 @@ var rePop = function()
         tempPath=shuffle(tempPath);
       
       population[z]=tempPath; 
-      
-        
-     /*   
-      var testString = '0 ';
-      for(var i=0;i<=slider1Val-2;i++)
-      {
-          testString += tempPath[i];                //  block for testing paths (log)
-          testString += ' ';
-      }
-      var test=fitness(tempPath);
-      console.log(testString,'0 : ',fitness(tempPath));  
-     */
-    
+
     }
-    
-    
+}
+
+
+
+
+var returnSmallestPath = function()
+{
     var smallestPath=0;
-    for(z=1;z<slider2Val;z++)
+    for(var z=1;z<slider2Val;z++)
     {
           if(fitness(population[z])<fitness(population[smallestPath]))
               smallestPath=z;
     }
-    drawPath(population[smallestPath]);
+    return smallestPath;
+}
+
+var returnSecondSmallestPath = function()
+{
+    var smallestPath = returnSmallestPath();
+    var secondSmallestPath=0;
+    
+    if(smallestPath==secondSmallestPath)
+     secondSmallestPath=1;
+    
+    for(var z=1;z<slider2Val;z++)
+    {
+          if(z==smallestPath)
+              continue;
+          if(fitness(population[z])<fitness(population[secondSmallestPath]))
+              secondSmallestPath=z;
+    }
+    return secondSmallestPath;
+}
+
+var returnLongestPath = function()
+{
+    var smallestPath=0;
+    for(var z=1;z<slider2Val;z++)
+    {
+          if(fitness(population[z])>fitness(population[smallestPath]))
+              smallestPath=z;
+    }
+    return smallestPath;
+}
+
+var returnSecondLongestPath = function()
+{
+    var smallestPath = returnLongestPath();
+    var secondSmallestPath=0;
+    
+    if(smallestPath==secondSmallestPath)
+     secondSmallestPath=1;
+    
+    for(var z=1;z<slider2Val;z++)
+    {
+          if(z==smallestPath)
+              continue;
+          if(fitness(population[z])>fitness(population[secondSmallestPath]))
+              secondSmallestPath=z;
+    }
+    return secondSmallestPath;
+}
+
+var drawSmallestPath = function()
+{
+    drawPath(population[returnSmallestPath()]);  
+    logPath(population[returnSmallestPath()]);
 }
 
 var drawPath = function(path)
@@ -137,13 +301,11 @@ var drawPath = function(path)
      game.debug.geom(line);    
     }
     
-<<<<<<< HEAD
-    line.fromSprite(cities.getAt(0),cities.getAt(path[i]));
-    game.debug.geom(line);   
-=======
+
+
     line.fromSprite(cities.getAt(path[i]),cities.getAt(0));
     game.debug.geom(line);
->>>>>>> origin/master
+
 }
 
 

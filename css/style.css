@@ -10,6 +10,12 @@
     width: 200px;
 }
 
+#logger
+{
+    position: absolute;
+    bottom: 0;
+}
+
 #slider2
 {
     position:fixed;
@@ -17,6 +23,8 @@
     top: 60px;
     width: 20px;
 }
+
+
 
 #slider2 .slider-input
 {
@@ -34,6 +42,15 @@
 {
     position: fixed;
     top:100px;
+    left: 850px;
+    width: 100px;
+}
+
+
+#nextG
+{
+    position: fixed;
+    top:125px;
     left: 850px;
     width: 100px;
 }
