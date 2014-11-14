@@ -16,10 +16,10 @@
 
 <body>
     <div class="slider" id="slider1">
-    <input id="slider-input" class="slider-input" type="range" min="0" value="15" max="100"></div>    <!-- cities number -->
+    <input id="slider-input" class="slider-input" type="range" min="0" value="15" max="100" hidden="true"></div>    <!-- cities number -->
     
     <div class="slider" id="slider2">
-    <input id="slider-input2" class="slider-input" type="range" min="1" value="1000" max="10000"></div>    <!-- pop size -->
+    <input id="slider-input2" class="slider-input" type="range" min="1" value="10" max="10000" hidden="true"></div>    <!-- pop size -->
     
     <div>
     <input id="genP" type="button" onclick="rePop()" value="Populate"></div>
@@ -31,7 +31,7 @@
     
     
     <div id="phaser"></div>
-    
+    <div id="cities"></div>
     <div id="logger">.</div>
     
     <script src='js/jquery.js'></script>

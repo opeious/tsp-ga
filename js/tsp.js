@@ -1,14 +1,15 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser', { preload: preload, create: create, update: update, render: render  });
 var cities;
-var cityScale = 0.25;
+var cityScale = .25;
 var population;
 var path;
 var pathDrawingDelay = 0.1;
 var populated=0;
+var gen = 1;
 
 
 
-var noOfIterations = 100;  //number of generations per iteration
+var noOfIterations = 150;  //number of generations per iteration
 var mutationChance  = 50; //in %
 
 
@@ -21,12 +22,13 @@ function create() {
     cities = game.add.group();
     paths = game.add.group();
     small = game.add.group();
-
-    /*
+    var col = new Array(slider1Val);
+    var adj = new Array(slider1Val);
     this.game.time.advancedTiming = true;
     this.fpsText = this.game.add.text(10, 10, '',       //fps tracking
     { font: '8px Arial', fill: '#ffffff' });
-    */
+    
+    var no = 0;
     while(cities.countLiving()<slider1Val)
     {
         addCity(game.world.randomX,game.world.randomY);
@@ -41,6 +43,66 @@ function create() {
          killCity.kill();
         
     }
+    cities.setAll('scale.x',cityScale);
+    cities.setAll('scale.y',cityScale);
+    
+    // for printing cities
+    for(var i = 0; i<slider1Val;i++)
+    {
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode("City "+ no++ + ": " +cities.getAt(i).x + ", "+cities.getAt(i).y));
+        document.getElementById('cities').appendChild(p);
+    }
+    document.getElementById('cities').appendChild(p);
+    for(var i = 0; i<slider1Val;i++)
+    {
+        for(var j = 0; j<slider1Val;j++)
+        {
+            if(i != j){
+            col[j] = distance(cities.getAt(i),cities.getAt(j));
+            }
+            else{
+                col[j] = -1;
+            }
+        }
+        adj[i] = col.slice();
+    }
+    var table = document.createElement("table");
+    var tr = document.createElement("tr");
+    var td = document.createElement("td");
+    td.appendChild(document.createTextNode(" "));
+    tr.appendChild(td);
+    for(var i= 0 ;i<slider1Val;i++)
+    {
+        var td = document.createElement("td");
+        td.appendChild(document.createTextNode(i));
+        tr.appendChild(td);
+    }
+    table.appendChild(tr);
+    document.getElementById('cities').appendChild(table);
+    for(var i= 0;i<slider1Val;i++)
+    {
+        var tr = document.createElement("tr");
+        for(var j = -1;j<slider1Val;j++)
+        {
+            if(j == -1)
+            {
+                var td = document.createElement("td");
+                td.appendChild(document.createTextNode(i));
+                tr.appendChild(td);
+            }
+            else{
+                var td = document.createElement("td");
+                td.appendChild(document.createTextNode(adj[i][j]));
+                tr.appendChild(td);
+            }
+        }
+        table.appendChild(tr);
+    }
+    
+        
+        document.getElementById('cities').appendChild(table);
+    
     population = new Array(slider2Val-1);
     rePop();
 }
@@ -68,7 +130,7 @@ function update()
     }
     
     
-    drawSmallestPath();
+    //drawSmallestPath();
     
     
 }
@@ -114,46 +176,97 @@ var nextGen = function()
 {
     for(var a=0;a<noOfIterations; a++)    
     {
-        
-      var parent1 = population[returnSmallestPath()];
-      var parent2 = population[returnSecondSmallestPath()];
-      var replacement1 = population[returnLongestPath()];
-      var replacement2 = population[returnSecondLongestPath()];
       
-      var child1 = parent1.slice();
-      var child2 = parent2.slice();
+      //var parent1 = population[returnSmallestPath()];
+      var parent1 = population[0];
+      //var parent2 = population[returnSecondSmallestPath()];
+      var parent2 = population[1];
       
+      //var child1 = parent1.slice();
+      //var child2 = parent2.slice();
       //do child generation
       //crossover
       //mutation
        
         
  
-     
-     //crossover(child1,child2);
-      mutation(child1);
-      mutation(child2);
+      population[slider2Val-1] =  crossover(parent1,parent2);
+      for(var i = 1; i<slider2Val;i++)
+      {
+        mutation(population[i]);
+      }
+      //mutation(child1);
+      //mutation(child2);
      
         
-    if(fitness(population[returnLongestPath()])>fitness(child1.slice()))         
+    /*if(fitness(population[returnLongestPath()])>fitness(child1))         
      population[returnLongestPath()] = child1.slice();
-   if(fitness(population[returnSecondLongestPath()])>fitness(child2.slice()))                 
-     population[returnSecondLongestPath()] = child2.slice();
-     
-     //replacement2 = child2;
+    if(fitness(population[returnSecondLongestPath()])>fitness(child2))                 
+     population[returnSecondLongestPath()] = child2.slice();*/
+      sortPop();
+      printPop();
     }
-    
-    console.log('Current smallest path: ');
-    logPath(population[returnSmallestPath()]);
-    
-    
-    
-    
+    drawSmallestPath();
+    /*console.log('Current smallest path: ');
+    logPath(population[returnSmallestPath()]);*/
 }
 
 var crossover = function(path1,path2)
 {
-    var path1First = new Array(path1.length()+1);
+    var i = 0;
+    var child = path1.slice();
+    var dis1 = distance(cities.getAt(0), cities.getAt(path1[0]));
+    var dis2 = distance(cities.getAt(0),cities.getAt(path2[0]));
+    while(i<slider1Val-2 && path1[i] == path2[i])
+    {
+        i++;
+         dis1 += distance(cities.getAt(path1[i-1]),cities.getAt(path1[i]));   
+         dis2 += distance(cities.getAt(path2[i-1]),cities.getAt(path2[i]));   
+    }
+    if(dis1 < dis2){
+        var j=0;
+        while(j<=i)
+        {
+            child[j] = path1[j];
+            j++;
+        }
+        while(j<slider1Val-1)
+        {
+            if(path1[i] == path2[j])
+            {
+                child[j] = path2[i];
+            }
+            else
+            {
+                child[j] = path2[j];
+            }
+            j++;
+        }
+        
+    }
+    else if(dis1 > dis2){
+        var j=0;
+        while(j<=i)
+        {
+            child[j] = path2[j];
+            j++;
+        }
+        while(j<slider1Val-1)
+        {
+            if(path2[i] == path1[j])
+            {
+                child[j] = path1[i];
+            }
+            else
+            {
+                child[j] = path1[j];
+            }
+            j++;
+        }
+        
+    }
+    return child;
+    /*var path1First = new Array(path1.length()+1);
     var path1Second = new Array(path1.length()+1);
     path1First[0]=0;
     path1Second[path1Second.length()]=0;
@@ -161,7 +274,7 @@ var crossover = function(path1,path2)
         path1First[i]=path1[i-1];
     
     for(i=0;i<path1.length()-1;i++)
-        path1Second[i]=path1[i+1];
+        path1Second[i]=path1[i+1];*/
 }
 
 
@@ -174,14 +287,28 @@ var logPath = function(path)
           testString += ' ';
       }
       var test=fitness(path);
-      console.log(testString,'0 : ',fitness(path),'\n');
+      //console.log(testString,'0 : ',test,'\n');
     
     
     testString += '0 : ';
-    testString += fitness(path);
+    testString += test;
     testString += '\n';
-    
-    document.getElementById('logger').innerHTML = testString;
+    return testString;
+    //document.getElementById('logger').innerHTML = testString;
+}
+
+var printPop = function(){
+    var div  = document.createElement("div");
+    var p = document.createElement("p");
+    p.appendChild(document.createTextNode("Generation"+gen++));
+    div.appendChild(p);
+    for(var i = 0; i<slider2Val ; i++)
+    {
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode(logPath(population[i])));
+        div.appendChild(p);
+    }
+    document.getElementById('logger').appendChild(div);
 }
 
 
@@ -214,6 +341,8 @@ var rePop = function()
       population[z]=tempPath; 
 
     }
+    
+    sortPop();
 }
 
 
@@ -228,6 +357,26 @@ var returnSmallestPath = function()
               smallestPath=z;
     }
     return smallestPath;
+}
+
+var sortPop = function(){
+    var swap  = false;
+    var temp;
+    do
+    {
+        swap = false;
+        for(var z = 0; z<slider2Val-1; z++)
+        {
+            if(fitness(population[z])>fitness(population[z+1]))
+            {
+                temp = population[z].slice();
+                population[z] = population[z+1].slice();
+                population[z+1] = temp.slice();
+                swap = true;
+            }
+        }
+    }
+    while(swap)
 }
 
 var returnSecondSmallestPath = function()
@@ -280,7 +429,7 @@ var returnSecondLongestPath = function()
 var drawSmallestPath = function()
 {
     drawPath(population[returnSmallestPath()]);  
-    logPath(population[returnSmallestPath()]);
+    //logPath(population[returnSmallestPath()]);
 }
 
 var drawPath = function(path)
