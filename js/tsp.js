@@ -10,7 +10,7 @@ var gen = 1;
 
 
 var noOfIterations = 150;  //number of generations per iteration
-var mutationChance  = 50; //in %
+var mutationChance  = 70; //in %
 
 
 function preload() {
