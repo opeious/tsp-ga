@@ -29,7 +29,7 @@ function create() {
     { font: '8px Arial', fill: '#ffffff' });
     
     var no = 0;
-    while(cities.countLiving()<slider1Val)
+    /*while(cities.countLiving()<slider1Val)
     {
         addCity(game.world.randomX,game.world.randomY);
         cities.setAll('scale.x',cityScale);
@@ -42,7 +42,8 @@ function create() {
         if(killCity)
          killCity.kill();
         
-    }
+    }*/
+    addCities();
     cities.setAll('scale.x',cityScale);
     cities.setAll('scale.y',cityScale);
     
